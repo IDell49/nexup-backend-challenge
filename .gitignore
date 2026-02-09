@@ -31,3 +31,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Archivos de compilación y caché
+.gradle/
+build/
+out/
+bin/

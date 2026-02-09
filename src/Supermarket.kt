@@ -34,6 +34,8 @@ class Supermarket(
      * @throws IllegalArgumentException if the product has not been registered yet.
      */
     fun addStock(productId: Int, quantity: Int) {
+        require(quantity > 0) { "Quantity to add must be bigger than 0. Received: $quantity" }
+
         val entry = inventory[productId]
             ?: throw IllegalArgumentException("Product ID $productId not found in Supermarket '$name'. Please call registerProduct() first.")
         
@@ -48,6 +50,8 @@ class Supermarket(
      * @throws IllegalStateException if stock is insufficient.
      */
     fun registerSale(productId: Int, quantity: Int): Double {
+        require(quantity > 0) { "Quantity to sell must be bigger than 0. Received: $quantity" }
+
         val entry = inventory[productId]
             ?: throw IllegalArgumentException("Product with ID $productId does not exist in Supermarket '$name'")
 
