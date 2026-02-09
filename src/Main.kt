@@ -2,7 +2,7 @@ fun main() {
     println("=== SUPERMARKET MANAGEMENT SYSTEM - STARTING SIMULATION ===\n")
 
     // 1. Setup
-    val rice = Product(1, "White Rice ", 200.0)
+    val rice = Product(1, "White Rice", 200.0)
     val milk = Product(2, "Whole Milk", 150.0)
     val coke = Product(3, "Coca-Cola 2.5L", 500.0)
     val soap = Product(4, "Dove Soap", 100.0)
@@ -27,16 +27,7 @@ fun main() {
     println("   Inventory loaded.\n")
 
     // 3. Process Sales
-    println(">> Processing daily sales...")
-
-    // Use helper function 'processSale' to keep Main clean
-    processSale(centralStore, coke, 10)
-    processSale(centralStore, rice, 20)
-
     // --- ERRORS OCCUR HERE ---
-    // Thanks to the try-catch inside 'processSale', the program DOES NOT stop.
-    // It simply prints the error message defined in Supermarket and continues.
-
     println("\n>> Simulating operational errors:")
 
     // Error 1: Product does not exist (Wine in North Branch)
@@ -45,16 +36,49 @@ fun main() {
     // Error 2: Insufficient stock
     processSale(northStore, coke, 1000)
 
-    // Valid sale AFTER errors (Shows program is still alive)
-    println("\n>> Recovering operation...")
+    // 4. DATA GENERATION FOR TOP 5
+    // We force specific sales to ensure all 6 items have data
+    // so we can prove the 6th item is dropped from the report.
+    println("\n>> GENERATING LEADERBOARD DATA (Selling all 6 items)...")
+
+    // Target Ranking:
+    // 1. Rice  (Total ~50)
+    // 2. Coke  (Total ~40)
+    // 3. Water (Total ~30)
+    // 4. Milk  (Total 20)
+    // 5. Wine  (Total 10)
+    // 6. Soap  (Total 5) -> SHOULD BE EXCLUDED
+    // Use helper function 'processSale' to keep Main clean
     processSale(northStore, water, 10)
+    processSale(northStore, water, 20)  // 10 prev + 20 = 30
+    processSale(centralStore, rice, 30) // 20 prev + 30 = 50
+    processSale(centralStore, coke, 30) // 10 prev + 30 = 40
+    processSale(centralStore, milk, 20) // New sale
+    processSale(centralStore, wine, 10) // New sale
+    processSale(centralStore, soap, 5)  // New sale (The Loser)
+    processSale(centralStore, coke, 10)
+    processSale(centralStore, rice, 20)
+    println("   Data generation complete.\n")
 
-    println("\n   Register closed.\n")
-
-    // 4. Final Reports
-    val chain = SupermarketChain(listOf(centralStore, northStore))
+    // 5. Final Reports
 
     println("==========================================")
+    println("   INDIVIDUAL STORE AUDIT: ${centralStore.name.uppercase()}")
+    println("==========================================")
+
+    // 1. Requirement: Register a sale and return price
+    // We sell 5 MORE units of Rice to demonstrate the return value
+    val lastSale = centralStore.registerSale(rice.id, 5)
+
+    println("1. Sale Return (${rice.name} x5):    $$lastSale")
+    println("2. Total Qty Sold (${rice.name}):    ${centralStore.getQuantitySold(rice.id)}")
+    println("3. Total Revenue (${rice.name}):     $${centralStore.getProductRevenue(rice.id)}")
+    println("4. Store Total Revenue:            $${centralStore.getTotalRevenue()}")
+    println("==========================================")
+
+    val chain = SupermarketChain(listOf(centralStore, northStore))
+
+    println("\n==========================================")
     println("       CONSOLIDATED FINAL REPORT")
     println("==========================================")
     println("1. Chain Total Revenue:   $${chain.getTotalRevenue()}")
@@ -65,8 +89,6 @@ fun main() {
 
 /**
  * Helper function to handle sales safely.
- * It catches exceptions thrown by the Supermarket logic (Backend)
- * and presents them nicely to the user (Frontend/Console).
  */
 fun processSale(store: Supermarket, product: Product, quantity: Int) {
     try {
