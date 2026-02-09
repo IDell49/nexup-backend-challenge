@@ -24,7 +24,7 @@ class ChallengeTests {
         superB.registerProduct(meat)
         superB.registerProduct(chicken)
 
-        chain = SupermarketChain(listOf(superA, superB))
+        chain = SupermarketChain(mutableListOf(superA, superB))
     }
 
     // --- HAPPY PATHS ---
@@ -243,7 +243,6 @@ class ChallengeTests {
     fun `architecture - chain aggregates sales of the same product across different supermarkets`() {
         // Setup: Same product 'Meat' in both supermarkets
         // superA and superB already have 'meat' registered in setUp()
-        
         superA.addStock(meat.id, 100)
         superB.addStock(meat.id, 100)
 

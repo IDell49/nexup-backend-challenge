@@ -49,7 +49,7 @@ fun main() {
     println("   Inventory loaded.\n")
 
     // 3. Process Sales
-    // --- ERRORS OCCUR HERE ---
+    // --- ERRORS OCCUR HERE --
     println("\n>> Simulating operational errors:")
 
     // Error 1: Product does not exist (Wine in North Branch)
@@ -83,14 +83,12 @@ fun main() {
     println("   Data generation complete.\n")
 
     // 4. Final Reports
+    // If stock is insufficient, it returns 0.0 instead of crashing.
+    val lastSale = processSale(centralStore, rice, 5)
 
     println("==========================================")
     println("   INDIVIDUAL STORE AUDIT: ${centralStore.name.uppercase()}")
     println("==========================================")
-
-    // 1. Requirement: Register a sale and return price
-    // We sell 5 MORE units of Rice to demonstrate the return value
-    val lastSale = centralStore.registerSale(rice.id, 5)
 
     println("1. Sale Return (${rice.name} x5):    $$lastSale")
     println("2. Total Qty Sold (${rice.name}):    ${centralStore.getQuantitySold(rice.id)}")
@@ -98,7 +96,31 @@ fun main() {
     println("4. Store Total Revenue:            $${centralStore.getTotalRevenue()}")
     println("==========================================")
 
-    val chain = SupermarketChain(listOf(centralStore, northStore))
+    val chain = SupermarketChain(mutableListOf(centralStore, northStore))
+
+    println("\n==========================================")
+    println("       CHAIN MANAGEMENT TEST")
+    println("==========================================")
+
+    // 1. Estado Inicial
+    println("1. Initial State:")
+    println("   -> List: ${chain.getAvailableSupermarkets()}")
+
+    // 2. Crear y Agregar nueva sucursal "Este"
+    val eastStore = Supermarket(3, "East Store")
+    chain.addSupermarket(eastStore)
+
+    println("\n2. Added 'East Store':")
+    println("   -> List: ${chain.getAvailableSupermarkets()}")
+
+    // 3. Eliminarla
+    chain.removeSupermarket(eastStore)
+
+    println("\n3. Removed 'East Store':")
+    println("   -> List: ${chain.getAvailableSupermarkets()}")
+
+    println("==========================================")
+
 
     println("\n==========================================")
     println("       CONSOLIDATED FINAL REPORT")
@@ -107,8 +129,6 @@ fun main() {
     println("2. Best Performing Store: ${chain.getSupermarketWithHighestRevenue()}")
     println("3. Top Selling Products:  ${chain.getTop5SellingProducts()}")
     println("==========================================")
-
-    // AL FINAL DEL MAIN, AGREGAMOS LA PRUEBA DE HORARIOS:
 
     println("\n==========================================")
     println("       OPENING HOURS CHECK")
@@ -135,15 +155,15 @@ fun main() {
 
 /**
  * Helper function to handle sales safely.
+ * Returns the total price of the sale, or 0.0 if the sale failed.
  */
-fun processSale(store: Supermarket, product: Product, quantity: Int) {
-    try {
+fun processSale(store: Supermarket, product: Product, quantity: Int): Double {
+    return try {
         val total = store.registerSale(product.id, quantity)
-        // If successful:
         println("Sale OK at ${store.name}: ${product.name} x$quantity = $$total")
+        total // Return the actual transaction amount
     } catch (e: Exception) {
-        // If failed (Supermarket throws Exception):
-        // 'e.message' contains YOUR original message (e.g., "Insufficient stock...")
         println("REJECTED at ${store.name}: ${e.message}")
+        0.0 // Return 0.0 on failure so calculations don't break
     }
 }
