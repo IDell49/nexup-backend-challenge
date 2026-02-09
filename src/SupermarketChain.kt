@@ -1,4 +1,5 @@
 import java.time.DayOfWeek
+import java.time.LocalTime
 
 class SupermarketChain(
     private val supermarkets: List<Supermarket>
@@ -27,30 +28,19 @@ class SupermarketChain(
 
     /**
      * Finds the top 5 selling products across the entire chain.
-     * Logic:
-     * 1. Collect all sold entries from all supermarkets.
-     * 2. Group them by Product (aggregating sales from different locations).
-     * 3. Sum the sold quantities.
-     * 4. Sort descending and take the top 5.
      */
     fun getTop5SellingProducts(): String {
         return supermarkets
             // 1. Flatten: List<Supermarket> -> List<StockEntry>
             .flatMap { it.getSoldEntries() }
-            
             // 2. Group: Map<Product, List<StockEntry>>
             .groupBy { it.product }
-            
             // 3. Aggregate: Map<Product, Int (TotalQuantity)>
-            .mapValues { (_, entries) -> 
-                entries.sumOf { it.soldQuantity } 
-            }
+            .mapValues { (_, entries) -> entries.sumOf { it.soldQuantity } }
             .toList() // Convert to List<Pair<Product, Int>> to sort
-            
             // 4. Sort & Limit
             .sortedByDescending { (_, totalQuantity) -> totalQuantity }
             .take(5)
-            
             // 5. Format output
             .joinToString(" - ") { (product, totalQuantity) ->
                 "${product.name}: $totalQuantity"
@@ -58,17 +48,18 @@ class SupermarketChain(
     }
 
     /**
-     * OBJETIVO OPCIONAL:
-     * Retorna lista de supermercados abiertos dado un día y horario.
+     * OPTIONAL OBJECTIVE:
+     * Returns a list of open supermarkets given a day and time.
      */
-    fun getOpenSupermarkets(day: DayOfWeek, hour: Int): String {
-        val openList = supermarkets.filter { it.isOpen(day, hour) }
+    fun getOpenSupermarkets(day: DayOfWeek, time: LocalTime): String {
+        // Pass the LocalTime object to the supermarket
+        val openList = supermarkets.filter { it.isOpen(day, time) }
 
         if (openList.isEmpty()) {
             return "No supermarkets open at this time."
         }
 
-        // Mapeamos a string "Nombre (id)" y unimos con comas
+        // Map to string "Name (id)" and join with commas
         return openList.joinToString(", ") { "${it.name} (${it.id})" }
     }
 }

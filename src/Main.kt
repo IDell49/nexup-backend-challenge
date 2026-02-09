@@ -1,4 +1,5 @@
 import java.time.DayOfWeek
+import java.time.LocalTime
 
 fun main() {
     println("=== SUPERMARKET MANAGEMENT SYSTEM - STARTING SIMULATION ===\n")
@@ -16,8 +17,8 @@ fun main() {
     val centralStore = Supermarket(
         id = 1,
         name = "Central Store",
-        openingHour = 8,
-        closingHour = 22,
+        openingHour = LocalTime.of(8, 0),
+        closingHour = LocalTime.of(22, 0),
         openDays = DayOfWeek.entries.toList() // Lunes a Domingo
     )
 
@@ -25,8 +26,8 @@ fun main() {
     val northStore = Supermarket(
         id = 2,
         name = "North Store",
-        openingHour = 9,
-        closingHour = 18,
+        openingHour = LocalTime.of(9, 0),
+        closingHour = LocalTime.of(18, 0),
         openDays = listOf(
             DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
             DayOfWeek.THURSDAY, DayOfWeek.FRIDAY
@@ -57,7 +58,7 @@ fun main() {
     // Error 2: Insufficient stock
     processSale(northStore, coke, 1000)
 
-    // 4. DATA GENERATION FOR TOP 5
+    // DATA GENERATION FOR TOP 5
     // We force specific sales to ensure all 6 items have data
     // so we can prove the 6th item is dropped from the report.
     println("\n>> GENERATING LEADERBOARD DATA (Selling all 6 items)...")
@@ -81,7 +82,7 @@ fun main() {
     processSale(centralStore, rice, 20)
     println("   Data generation complete.\n")
 
-    // 5. Final Reports
+    // 4. Final Reports
 
     println("==========================================")
     println("   INDIVIDUAL STORE AUDIT: ${centralStore.name.uppercase()}")
@@ -113,21 +114,21 @@ fun main() {
     println("       OPENING HOURS CHECK")
     println("==========================================")
 
-    // Caso 1: Lunes a las 10 AM (Ambos deberían estar abiertos)
-    val check1 = chain.getOpenSupermarkets(DayOfWeek.MONDAY, 10)
-    println("1. Monday 10:00 -> $check1")
+    // Caso 1: Lunes a las 10:00 (Ambos abiertos)
+    val time1 = LocalTime.of(10, 0)
+    println("1. Monday $time1 -> ${chain.getOpenSupermarkets(DayOfWeek.MONDAY, time1)}")
 
-    // Caso 2: Domingo a las 10 AM (Norte cierra los domingos)
-    val check2 = chain.getOpenSupermarkets(DayOfWeek.SUNDAY, 10)
-    println("2. Sunday 10:00 -> $check2")
+    // Caso 2: Domingo a las 10:00 (Norte cierra domingos)
+    val time2 = LocalTime.of(10, 0)
+    println("2. Sunday $time2 -> ${chain.getOpenSupermarkets(DayOfWeek.SUNDAY, time2)}")
 
-    // Caso 3: Lunes a las 20:00 (Norte cierra a las 18, Centro cierra a las 22)
-    val check3 = chain.getOpenSupermarkets(DayOfWeek.MONDAY, 20)
-    println("3. Monday 20:00 -> $check3")
+    // Caso 3: Lunes a las 20:30 (Norte cierra a las 18:00)
+    val time3 = LocalTime.of(20, 30)
+    println("3. Monday $time3 -> ${chain.getOpenSupermarkets(DayOfWeek.MONDAY, time3)}")
 
     // Caso 4: Lunes a las 23:00 (Todos cerrados)
-    val check4 = chain.getOpenSupermarkets(DayOfWeek.MONDAY, 23)
-    println("4. Monday 23:00 -> $check4")
+    val time4 = LocalTime.of(23, 0)
+    println("4. Monday $time4 -> ${chain.getOpenSupermarkets(DayOfWeek.MONDAY, time4)}")
 
     println("==========================================")
 }
