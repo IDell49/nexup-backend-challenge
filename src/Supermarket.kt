@@ -1,6 +1,7 @@
+import java.time.DayOfWeek
+
 /**
  * Helper data class to manage the inventory state of a specific product.
- * It groups the product definition with its current stock and sales stats.
  */
 data class StockEntry(
     val product: Product,
@@ -11,44 +12,45 @@ data class StockEntry(
 
 class Supermarket(
     val id: Int,
-    val name: String
+    val name: String,
+    // Objetivo Opcional
+    val openingHour: Int = 8,   // Por defecto abre a las 8 (formato 0-23)
+    val closingHour: Int = 22,  // Por defecto cierra a las 22 (formato 0-23)
+    val openDays: List<DayOfWeek> = DayOfWeek.entries.toList() // Por defecto abre todos los días
 ) {
-    // Internal "Database" for this supermarket.
     private val inventory: MutableMap<Int, StockEntry> = mutableMapOf()
 
     /**
-     * Registers a NEW product in the supermarket catalog.
-     * Initializes stock at 0.
-     * @throws IllegalArgumentException if the product ID is already registered.
+     * Lógica para determinar si el supermercado está abierto.
+     * @param day El día de la semana a consultar.
+     * @param hour La hora del día (0-23).
      */
+    fun isOpen(day: DayOfWeek, hour: Int): Boolean {
+        // 1. Verificamos si abre ese día
+        if (!openDays.contains(day)) return false
+
+        // 2. Verificamos el rango horario (ej: si cierra a las 22, a las 22:00 ya está cerrado)
+        return hour >= openingHour && hour < closingHour
+    }
+
+    // --- (El resto de tu código sigue igual) ---
+
     fun registerProduct(product: Product) {
         if (inventory.containsKey(product.id)) {
             throw IllegalArgumentException("Product with ID ${product.id} is already registered in Supermarket '$name'.")
         }
-        // Initialize with 0 stock
         inventory[product.id] = StockEntry(product, 0)
     }
 
-    /**
-     * Adds stock to an existing product.
-     * @throws IllegalArgumentException if the product has not been registered yet.
-     */
     fun addStock(productId: Int, quantity: Int) {
         require(quantity > 0) { "Quantity to add must be bigger than 0. Received: $quantity" }
 
         val entry = inventory[productId]
             ?: throw IllegalArgumentException("Product ID $productId not found in Supermarket '$name'. Please call registerProduct() first.")
-        
+
         entry.currentQuantity += quantity
     }
 
-    /**
-     * Records a sale of a product.
-     * Updates stock, sold quantity, and revenue in a single atomic operation per product.
-     * @return The total price of the sale.
-     * @throws IllegalArgumentException if product not found.
-     * @throws IllegalStateException if stock is insufficient.
-     */
     fun registerSale(productId: Int, quantity: Int): Double {
         require(quantity > 0) { "Quantity to sell must be bigger than 0. Received: $quantity" }
 
@@ -59,7 +61,6 @@ class Supermarket(
             throw IllegalStateException("Insufficient stock for '${entry.product.name}'. Available: ${entry.currentQuantity}, Requested: $quantity")
         }
 
-        // Update state
         entry.currentQuantity -= quantity
         entry.soldQuantity += quantity
 
@@ -69,16 +70,11 @@ class Supermarket(
         return totalSalePrice
     }
 
-    // --- Getters & Helpers ---
-
     fun getQuantitySold(productId: Int): Int = inventory[productId]?.soldQuantity ?: 0
 
     fun getProductRevenue(productId: Int): Double = inventory[productId]?.revenueGenerated ?: 0.0
 
     fun getTotalRevenue(): Double = inventory.values.sumOf { it.revenueGenerated }
 
-    /**
-     * Helper for SupermarketChain: returns only the entries that have sales.
-     */
     fun getSoldEntries(): List<StockEntry> = inventory.values.filter { it.soldQuantity > 0 }
 }

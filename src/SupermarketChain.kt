@@ -1,3 +1,5 @@
+import java.time.DayOfWeek
+
 class SupermarketChain(
     private val supermarkets: List<Supermarket>
 ) {
@@ -53,5 +55,20 @@ class SupermarketChain(
             .joinToString(" - ") { (product, totalQuantity) ->
                 "${product.name}: $totalQuantity"
             }
+    }
+
+    /**
+     * OBJETIVO OPCIONAL:
+     * Retorna lista de supermercados abiertos dado un día y horario.
+     */
+    fun getOpenSupermarkets(day: DayOfWeek, hour: Int): String {
+        val openList = supermarkets.filter { it.isOpen(day, hour) }
+
+        if (openList.isEmpty()) {
+            return "No supermarkets open at this time."
+        }
+
+        // Mapeamos a string "Nombre (id)" y unimos con comas
+        return openList.joinToString(", ") { "${it.name} (${it.id})" }
     }
 }
