@@ -63,13 +63,13 @@ class ChallengeTests {
         val ex1 = assertThrows<IllegalArgumentException> {
             superA.addStock(meat.id, -10)
         }
-        assertTrue(ex1.message!!.contains("must be bigger than 0"))
+        assertTrue(ex1.message!!.contains("must be positive"))
 
         // Zero
         val ex2 = assertThrows<IllegalArgumentException> {
             superA.addStock(meat.id, 0)
         }
-        assertTrue(ex2.message!!.contains("must be bigger than 0"))
+        assertTrue(ex2.message!!.contains("must be positive"))
     }
 
     @Test
@@ -93,7 +93,7 @@ class ChallengeTests {
         val exception = assertThrows<IllegalArgumentException> {
             superA.addStock(unknownId, 10)
         }
-        assertTrue(exception.message!!.contains("registerProduct() first"))
+        assertTrue(exception.message!!.contains("not found in Supermarket"))
     }
 
     @Test
@@ -206,7 +206,7 @@ class ChallengeTests {
 
 
     // --- Architecture ---
-    
+
     @Test
     fun `architecture - revenue history remains stable when product price changes (Inflation Test)`() {
         // 1. Setup: Product costs $10 initially
